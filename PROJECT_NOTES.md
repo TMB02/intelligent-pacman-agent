@@ -6,9 +6,9 @@ This project starts from [BaggerFast/Pacman](https://github.com/BaggerFast/Pacma
 
 The upstream game is retained as the environment: maze, sprites, scenes, levels, sounds, scoring, lives, and win/lose flow. The upstream `LICENSE.txt` and copyright notice are intentionally preserved.
 
-## Planned AI contribution
+## AI contribution
 
-The college AI laboratory extension will be implemented as a separate `ai/` layer so the original game remains identifiable and reusable:
+The college AI laboratory extension is implemented as a separate `pacman/ai/` layer so the original game remains identifiable and reusable:
 
 - formal game-state extraction;
 - target selection with explainable utility scores;
@@ -20,7 +20,9 @@ The college AI laboratory extension will be implemented as a separate `ai/` laye
 - optional path/debug/explanation panel;
 - reproducible performance comparisons based on actual runs.
 
-The current commit is the clean, runnable game foundation. AI integration should be added in incremental commits with tests and attribution kept separate from upstream code.
+Minimax and Alpha-Beta search now run on immutable simulation states. The live
+game can opt into the integrated intelligent agent with `PACMAN_AI_MODE=intelligent`.
+The default human mode remains unchanged. AI tests are in `tests/test_ai.py`.
 
 ## Run
 

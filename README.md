@@ -38,6 +38,32 @@ Watch  full video on [YouTube](https://www.youtube.com/watch?v=VpNoZ70wDEg)
 - In Menu
   - **pycman** - unlock all skins and levels
 
+## Intelligent AI mode
+
+The project includes a separate `pacman/ai/` layer with:
+
+- immutable cell-based simulation states;
+- Minimax with Pac-Man as MAX and ghosts as MIN;
+- Alpha-Beta pruning with node/pruning/time metrics;
+- explainable evaluation using target progress, nearest targets, mobility, ghost distance, and collision risk;
+- bounded joint ghost responses so decisions remain suitable for real-time play.
+
+Human gameplay remains the default. Run the integrated intelligent agent with:
+
+```bash
+PACMAN_AI_MODE=intelligent PACMAN_AI_DEPTH=3 python3 run.py
+```
+
+Use `PACMAN_AI_DEPTH=2` for slower machines. The original renderer, collision
+system, ghost runtime behavior, scoring, lives, and win/lose flow are retained;
+the AI only supplies Pac-Man's next desired direction at cell centers.
+
+Run the AI unit tests with:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
 ## 🎧 Set custom sounds in FUN MODE
 ![img.png](assets/fun_mode.png)
 

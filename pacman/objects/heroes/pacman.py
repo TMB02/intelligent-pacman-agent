@@ -29,6 +29,13 @@ class Pacman(Character, IEventful):
             self.go()
             self.__feature_rotate = self.action[event.type]
 
+    def apply_ai_action(self, action: str) -> None:
+        """Set the next desired direction without synthesizing a Pygame event."""
+
+        if action in self.direction and action != "none" and not self.is_dead:
+            self.go()
+            self.__feature_rotate = action
+
     def update(self) -> None:
         self.animator.update()
         if not self.is_dead:

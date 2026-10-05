@@ -90,6 +90,18 @@ class SeedContainer(IDrawable):
                 return True
         return False
 
+    @property
+    def remaining_positions(self) -> tuple[tuple[int, int], ...]:
+        """Return remaining normal-pellet cells for read-only AI evaluation."""
+
+        return tuple((x, y) for y, row in enumerate(self.__seeds) for x, present in enumerate(row) if present)
+
+    @property
+    def energizer_positions(self) -> tuple[tuple[int, int], ...]:
+        """Return remaining power-pellet cells for read-only AI evaluation."""
+
+        return tuple((energizer.x, energizer.y) for energizer in self.__energizers)
+
     def is_field_empty(self) -> bool:
         return self.__seeds_counts == 0
 

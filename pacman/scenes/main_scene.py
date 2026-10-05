@@ -1,12 +1,14 @@
+import os
 from typing import Generator
 
 from pygame import Rect, Surface, time
 from pygame.event import Event
 
+from pacman.ai import IntelligentAgent
 from pacman.data_core import Cfg, EvenType, FontCfg, PathUtl, event_append
 from pacman.data_core.data_classes import Cheat
 from pacman.data_core.enums import DifficultEnum, GameStateEnum, GhostStateEnum, SoundCh
-from pacman.misc import HpSystem, ImgObj, LevelLoader, ScoreSystem, is_esc_pressed, rand_color
+from pacman.misc import CellUtil, HpSystem, ImgObj, LevelLoader, ScoreSystem, is_esc_pressed, rand_color
 from pacman.objects import Blinky, CheatController, Clyde, Fruit, Inky, Map, Pacman, Pinky, SeedContainer, Text
 from pacman.skin import SkinEnum
 from pacman.sound import SoundController, Sounds
@@ -37,6 +39,13 @@ class MainScene(BaseScene):
         self.__score = ScoreSystem()
 
         self.__loader = LevelLoader(PathUtl.get_asset(f"maps/{LevelStorage().current}.json"))
+
+        self.__ai_mode = os.getenv("PACMAN_AI_MODE", "human").lower()
+        self.__ai_agent = (
+            IntelligentAgent(depth=int(os.getenv("PACMAN_AI_DEPTH", "3")))
+            if self.__ai_mode in {"intelligent", "alpha-beta", "alphabeta"}
+            else None
+        )
 
         self.__seeds_eaten = 0
 
@@ -199,7 +208,14 @@ class MainScene(BaseScene):
         for ghost in self.__ghosts:
             ghost.home_ai(self.__seeds_eaten)
 
+    def __intelligent_ai(self) -> None:
+        if self.__ai_agent is None or self.pacman.is_dead or not CellUtil.is_in_cell_center(self.pacman.rect):
+            return
+        action = self.__ai_agent.choose_action(self.pacman, self.__ghosts, self.__loader, self.__seeds)
+        self.pacman.apply_ai_action(action)
+
     def __game_logic(self):
+        self.__intelligent_ai()
         super().process_logic()
         self.__play_sound()
         self.__ghost_ai()
