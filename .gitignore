@@ -307,3 +307,6 @@ storage.json
 saves/*
 !.gitkeep
 build
+
+# Generated recording artifacts
+artifacts/

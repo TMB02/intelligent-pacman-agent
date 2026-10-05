@@ -209,7 +209,11 @@ class MainScene(BaseScene):
             ghost.home_ai(self.__seeds_eaten)
 
     def __intelligent_ai(self) -> None:
-        if self.__ai_agent is None or self.pacman.is_dead or not CellUtil.is_in_cell_center(self.pacman.rect):
+        if (
+            self.__ai_agent is None
+            or self.pacman.is_dead
+            or (self.pacman.speed != 0 and not CellUtil.is_in_cell_center(self.pacman.rect))
+        ):
             return
         action = self.__ai_agent.choose_action(self.pacman, self.__ghosts, self.__loader, self.__seeds)
         self.pacman.apply_ai_action(action)
@@ -234,7 +238,7 @@ class MainScene(BaseScene):
 
     def draw(self) -> Surface:
         super().draw()
-        if self.__state.INTRO:
+        if self.__state is GameStateEnum.INTRO:
             for txt in self.__into_text[0:1]:
                 txt.draw(self._screen)
         return self._screen
