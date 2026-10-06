@@ -22,12 +22,19 @@ class SearchMetrics:
 
 @dataclass(frozen=True)
 class EvaluationWeights:
-    target_progress: float = 8.0
+    """Tunable, explainable weights for state evaluation."""
+
+    score_reward: float = 1.0
+    target_progress: float = 2.0
     nearest_target: float = 1.5
-    ghost_distance: float = 5.0
-    collision: float = 1000.0
-    vulnerable_ghost: float = 3.0
-    mobility: float = 1.0
+    ghost_distance: float = 2.5
+    ghost_threat: float = 30.0
+    collision: float = 5000.0
+    vulnerable_ghost: float = 20.0
+    mobility: float = 2.0
+    escape_route: float = 4.0
+    dead_end: float = 20.0
+    energizer_strategy: float = 10.0
 
 
 class MinimaxAgent:
@@ -107,24 +114,47 @@ class MinimaxAgent:
         return any(ghost.active and ghost.position == state.pacman and not ghost.vulnerable for ghost in state.ghosts)
 
     def evaluate(self, state: SimulationState) -> float:
-        """Explainable heuristic: progress, targets, mobility, and ghost risk."""
+        """Score progress while strongly preferring survivable escape routes.
+
+        Near-ghost danger is non-linear: four cells away is usually acceptable,
+        while one cell away is strategically disastrous unless the ghost is
+        vulnerable. This prevents a tempting pellet from outweighing survival.
+        """
 
         if self._terminal(state):
             return -self.weights.collision
 
-        value = state.collected_targets * self.weights.target_progress
+        value = state.score * self.weights.score_reward
+        value += state.collected_targets * self.weights.target_progress
         targets = state.pellets | state.energizers
         if targets:
             nearest = min(self._manhattan(state.pacman, target) for target in targets)
             value -= nearest * self.weights.nearest_target
-        value += len(legal_actions_from_state(state, state.pacman)) * self.weights.mobility
+
+        escape_routes = len(legal_actions_from_state(state, state.pacman))
+        value += escape_routes * self.weights.mobility
+        if escape_routes <= 1:
+            value -= self.weights.dead_end
 
         for ghost in state.ghosts:
             distance = self._manhattan(state.pacman, ghost.position)
             if ghost.vulnerable:
-                value += max(0, 12 - distance) * self.weights.vulnerable_ghost
+                value += max(0, 10 - distance) * self.weights.vulnerable_ghost
             elif ghost.active:
-                value += (distance - 4) * self.weights.ghost_distance
+                value += min(distance, 12) * self.weights.ghost_distance
+                if distance <= 1:
+                    value -= self.weights.collision
+                elif distance <= 5:
+                    value -= (6 - distance) ** 2 * self.weights.ghost_threat
+                    value += escape_routes * self.weights.escape_route
+
+        dangerous_ghost_nearby = any(
+            ghost.active and not ghost.vulnerable and self._manhattan(state.pacman, ghost.position) <= 7
+            for ghost in state.ghosts
+        )
+        if dangerous_ghost_nearby and state.energizers:
+            nearest_energizer = min(self._manhattan(state.pacman, target) for target in state.energizers)
+            value += max(0, 8 - nearest_energizer) * self.weights.energizer_strategy
         return value
 
     @staticmethod

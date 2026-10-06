@@ -45,7 +45,9 @@ The project includes a separate `pacman/ai/` layer with:
 - immutable cell-based simulation states;
 - Minimax with Pac-Man as MAX and ghosts as MIN;
 - Alpha-Beta pruning with node/pruning/time metrics;
-- explainable evaluation using target progress, nearest targets, mobility, ghost distance, and collision risk;
+- explainable evaluation using score rewards, target progress, nearest targets,
+  mobility, escape routes, non-linear near-ghost threat, collision risk,
+  vulnerable-ghost opportunities, and energizer strategy;
 - bounded joint ghost responses so decisions remain suitable for real-time play.
 
 Human gameplay remains the default. Run the integrated intelligent agent with:

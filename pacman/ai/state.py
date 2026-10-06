@@ -37,6 +37,7 @@ class SimulationState:
     energizers: frozenset[tuple[int, int]] = frozenset()
     initial_target_count: int = 0
     collected_targets: int = 0
+    score: int = 0
     movement: tuple[tuple[tuple[bool, ...], ...], ...] = ()
 
     @property
@@ -143,7 +144,10 @@ def apply_pacman_action(state: SimulationState, action: str) -> SimulationState:
     position = move_position(state, state.pacman, action)
     pellets = state.pellets - {position}
     energizers = state.energizers - {position}
-    collected = state.collected_targets + int(position in state.pellets or position in state.energizers)
+    collected_pellet = position in state.pellets
+    collected_energizer = position in state.energizers
+    collected = state.collected_targets + int(collected_pellet or collected_energizer)
+    score = state.score + (50 if collected_energizer else 10 if collected_pellet else 0)
     return SimulationState(
         pacman=position,
         ghosts=state.ghosts,
@@ -152,6 +156,7 @@ def apply_pacman_action(state: SimulationState, action: str) -> SimulationState:
         energizers=frozenset(energizers),
         initial_target_count=state.initial_target_count,
         collected_targets=collected,
+        score=score,
         movement=state.movement,
     )
 
@@ -171,6 +176,7 @@ def apply_ghost_actions(state: SimulationState, actions: Iterable[str]) -> Simul
         energizers=state.energizers,
         initial_target_count=state.initial_target_count,
         collected_targets=state.collected_targets,
+        score=state.score,
         movement=state.movement,
     )
 
@@ -196,5 +202,6 @@ def extract_state(pacman, ghosts, loader, seeds=None) -> SimulationState:
         energizers=energizers,
         initial_target_count=len(pellets) + len(energizers),
         collected_targets=0,
+        score=0,
         movement=collision_map_to_movement(loader.collision_map),
     )

@@ -13,14 +13,16 @@ from pacman.ai.state import GhostState, SimulationState, apply_pacman_action, le
 OPEN = 15
 
 
-def state(pacman=(1, 1), ghosts=(), pellets=frozenset({(2, 1)})):
+def state(pacman=(1, 1), ghosts=(), pellets=frozenset({(2, 1)}), energizers=frozenset(), score=0):
     grid = tuple(tuple(True for _ in range(5)) for _ in range(5))
     return SimulationState(
         pacman=pacman,
         ghosts=tuple(ghosts),
         walkable=grid,
         pellets=pellets,
+        energizers=energizers,
         initial_target_count=len(pellets),
+        score=score,
     )
 
 
@@ -34,6 +36,29 @@ class AiTests(unittest.TestCase):
         self.assertEqual(result.pacman, (2, 1))
         self.assertNotIn((2, 1), result.pellets)
         self.assertEqual(result.collected_targets, 1)
+        self.assertEqual(result.score, 10)
+
+    def test_energizer_has_higher_score_reward_than_pellet(self):
+        pellet = apply_pacman_action(state(pellets=frozenset({(2, 1)})), "right")
+        energizer = apply_pacman_action(
+            state(pellets=frozenset(), energizers=frozenset({(2, 1)})), "right"
+        )
+        self.assertGreater(energizer.score, pellet.score)
+        self.assertEqual(energizer.score, 50)
+
+    def test_nearby_dangerous_ghost_is_worse_than_distant_ghost(self):
+        agent = MinimaxAgent(depth=1)
+        near = agent.evaluate(state(ghosts=(GhostState((2, 1)),)))
+        distant = agent.evaluate(state(ghosts=(GhostState((4, 4)),)))
+        self.assertLess(near, distant)
+
+    def test_nearby_energizer_offsets_some_ghost_risk(self):
+        agent = MinimaxAgent(depth=1)
+        without_energizer = agent.evaluate(state(ghosts=(GhostState((3, 1)),)))
+        with_energizer = agent.evaluate(
+            state(ghosts=(GhostState((3, 1)),), energizers=frozenset({(2, 1)}))
+        )
+        self.assertGreater(with_energizer, without_energizer)
 
     def test_minimax_avoids_an_immediate_ghost_collision(self):
         current = state(
