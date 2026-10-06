@@ -53,12 +53,16 @@ The project includes a separate `pacman/ai/` layer with:
 Human gameplay remains the default. Run the integrated intelligent agent with:
 
 ```bash
-PACMAN_AI_MODE=intelligent PACMAN_AI_DEPTH=3 python3 run.py
+PACMAN_AI_MODE=intelligent PACMAN_AI_DEPTH=2 python3 run.py
 ```
 
-Use `PACMAN_AI_DEPTH=2` for slower machines. The original renderer, collision
-system, ghost runtime behavior, scoring, lives, and win/lose flow are retained;
-the AI only supplies Pac-Man's next desired direction at cell centers.
+The live controller uses a risk-aware corridor route, proactive energizer
+seeking, threat-focused ghost responses, a one-step collision shield, and an
+emergency escape policy. Depth 3 is available for offline experiments but is
+not recommended for live play because four-ghost search becomes too slow.
+The original renderer, collision system, ghost runtime behavior, scoring,
+lives, and win/lose flow are retained; the AI supplies Pac-Man's next desired
+direction at cell centers.
 
 Run the AI unit tests with:
 

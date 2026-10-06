@@ -42,7 +42,7 @@ class MainScene(BaseScene):
 
         self.__ai_mode = os.getenv("PACMAN_AI_MODE", "human").lower()
         self.__ai_agent = (
-            IntelligentAgent(depth=int(os.getenv("PACMAN_AI_DEPTH", "3")))
+            IntelligentAgent(depth=int(os.getenv("PACMAN_AI_DEPTH", "2")))
             if self.__ai_mode in {"intelligent", "alpha-beta", "alphabeta"}
             else None
         )

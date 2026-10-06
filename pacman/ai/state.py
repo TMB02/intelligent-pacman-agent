@@ -120,9 +120,41 @@ def ghost_action_combinations(
             choices.append(("none",))
             continue
         actions = legal_actions_from_state(state, ghost.position)
-        choices.append(actions or ("none",))
+        if not actions:
+            choices.append(("none",))
+            continue
+        threatening = sorted(
+            actions,
+            key=lambda action: _manhattan(
+                move_position(state, ghost.position, action), state.pacman
+            ),
+        )
+        # Two responses preserve chase/escape alternatives while keeping
+        # four-ghost depth-3 search real-time (2^4 joint branches).
+        choices.append(tuple(threatening[:2]))
     combinations = tuple(product(*choices))
-    return combinations[:max_combinations]
+    # The old implementation kept the first combinations in product order.
+    # That could omit the dangerous branch for a later ghost. Keep the most
+    # threatening responses first so the bounded search remains adversarial.
+    ranked = sorted(
+        combinations,
+        key=lambda actions: min(
+            (
+                _manhattan(
+                    move_position(state, ghost.position, action),
+                    state.pacman,
+                )
+                for ghost, action in zip(state.ghosts, actions)
+                if ghost.active and action != "none"
+            ),
+            default=999,
+        ),
+    )
+    return tuple(ranked[:max_combinations])
+
+
+def _manhattan(first: tuple[int, int], second: tuple[int, int]) -> int:
+    return abs(first[0] - second[0]) + abs(first[1] - second[1])
 
 
 def legal_actions_from_state(state: SimulationState, position: tuple[int, int]) -> tuple[str, ...]:
