@@ -28,11 +28,11 @@ The implementation is directly related to the SPPU AI syllabus:
   corridor path distance;
 - Unit III: adversarial search, game theory, Minimax, and Alpha-Beta pruning.
 
-For the completion experiment, `pacman/objects/heroes/ghosts/base.py` enables
-`MATCH_PACMAN_SPEED`. Every ghost then performs one movement step per frame,
-matching Pac-Man's one-pixel step. Slow maze zones and frightened/eaten speed
-modifiers are disabled in this mode, so the search model and live environment
-use the same speed assumption.
+The equal-speed experiment was intentionally reverted. The normal game rules
+are now active again: slow maze zones, frightened movement, and eaten-ghost
+return speed use their original modifiers. The search also models the proper
+energizer rule: vulnerable ghosts become explicit targets, Pac-Man can eat them
+in simulation, and ghost rewards follow 200, 400, 800, and 1600 points.
 
 Minimax and Alpha-Beta search now run on immutable simulation states. The live
 game can opt into the integrated intelligent agent with `PACMAN_AI_MODE=intelligent`.

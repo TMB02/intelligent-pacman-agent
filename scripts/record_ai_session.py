@@ -55,7 +55,7 @@ def draw_panel(canvas: pygame.Surface, scene: MainScene, font: pygame.font.Font)
             ("ALGORITHM:", Colors.WHITE),
             ("MINIMAX + ALPHA-BETA", Colors.GREEN),
             (f"DEPTH: {agent.search.depth}", Colors.WHITE),
-            ("GHOST SPEED: PAC-MAN", Colors.GREEN),
+            ("GHOST SPEED: NORMAL", Colors.GREEN),
             ("SHOWCASE: NO DAMAGE", Colors.YELLOW),
             ("PLAYBACK: 10x SIMULATION", Colors.YELLOW),
         ("", Colors.WHITE),

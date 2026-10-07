@@ -127,7 +127,13 @@ class MinimaxAgent:
             if ghost.active and not ghost.vulnerable
         ]
         danger_nearby = bool(dangerous_distances)
-        targets = state.energizers if danger_nearby and state.energizers else state.pellets | state.energizers
+        vulnerable_ghosts = frozenset(
+            ghost.position for ghost in state.ghosts if ghost.active and ghost.vulnerable
+        )
+        if vulnerable_ghosts:
+            targets = vulnerable_ghosts
+        else:
+            targets = state.energizers if danger_nearby and state.energizers else state.pellets | state.energizers
         if not targets:
             return None
         queue = deque()
@@ -230,7 +236,9 @@ class MinimaxAgent:
 
         value = state.score * self.weights.score_reward
         value += state.collected_targets * self.weights.target_progress
-        targets = state.pellets | state.energizers
+        targets = state.pellets | state.energizers | frozenset(
+            ghost.position for ghost in state.ghosts if ghost.active and ghost.vulnerable
+        )
         if targets:
             nearest = self._nearest_target_distance(state, state.pacman, targets)
             value -= nearest * self.weights.nearest_target

@@ -38,6 +38,7 @@ class SimulationState:
     initial_target_count: int = 0
     collected_targets: int = 0
     score: int = 0
+    ghosts_eaten: int = 0
     movement: tuple[tuple[tuple[bool, ...], ...], ...] = ()
 
     @property
@@ -176,19 +177,28 @@ def apply_pacman_action(state: SimulationState, action: str) -> SimulationState:
     position = move_position(state, state.pacman, action)
     pellets = state.pellets - {position}
     energizers = state.energizers - {position}
+    ghosts = list(state.ghosts)
+    eaten_ghosts = [
+        ghost for ghost in ghosts if ghost.active and ghost.vulnerable and ghost.position == position
+    ]
+    for index, ghost in enumerate(ghosts):
+        if ghost in eaten_ghosts:
+            ghosts[index] = GhostState(ghost.position, vulnerable=False, active=False)
     collected_pellet = position in state.pellets
     collected_energizer = position in state.energizers
     collected = state.collected_targets + int(collected_pellet or collected_energizer)
-    score = state.score + (50 if collected_energizer else 10 if collected_pellet else 0)
+    ghost_score = sum(200 * (2 ** (state.ghosts_eaten + offset)) for offset in range(len(eaten_ghosts)))
+    score = state.score + ghost_score + (50 if collected_energizer else 10 if collected_pellet else 0)
     return SimulationState(
         pacman=position,
-        ghosts=state.ghosts,
+        ghosts=tuple(ghosts),
         walkable=state.walkable,
         pellets=frozenset(pellets),
         energizers=frozenset(energizers),
         initial_target_count=state.initial_target_count,
         collected_targets=collected,
         score=score,
+        ghosts_eaten=state.ghosts_eaten + len(eaten_ghosts),
         movement=state.movement,
     )
 
@@ -209,6 +219,7 @@ def apply_ghost_actions(state: SimulationState, actions: Iterable[str]) -> Simul
         initial_target_count=state.initial_target_count,
         collected_targets=state.collected_targets,
         score=state.score,
+        ghosts_eaten=state.ghosts_eaten,
         movement=state.movement,
     )
 
@@ -235,5 +246,6 @@ def extract_state(pacman, ghosts, loader, seeds=None) -> SimulationState:
         initial_target_count=len(pellets) + len(energizers),
         collected_targets=0,
         score=0,
+        ghosts_eaten=0,
         movement=collision_map_to_movement(loader.collision_map),
     )

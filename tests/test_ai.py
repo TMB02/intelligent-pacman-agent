@@ -109,6 +109,17 @@ class AiTests(unittest.TestCase):
 
         self.assertNotEqual(os.getenv("PACMAN_AI_SHOWCASE", "0"), "1")
 
+    def test_pacman_targets_and_eats_a_vulnerable_ghost(self):
+        current = state(
+            pacman=(1, 1),
+            ghosts=(GhostState((2, 1), vulnerable=True),),
+            pellets=frozenset(),
+        )
+        result = apply_pacman_action(current, "right")
+        self.assertEqual(result.score, 200)
+        self.assertEqual(result.ghosts_eaten, 1)
+        self.assertFalse(result.ghosts[0].active)
+
 
 if __name__ == "__main__":
     unittest.main()

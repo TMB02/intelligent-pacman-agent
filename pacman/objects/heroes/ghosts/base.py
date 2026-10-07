@@ -31,10 +31,9 @@ def ghost_state(state: GhostStateEnum):
 class Base(Character, IEventful):
     love_point_in_scatter_mode = (0, 0)
     seed_percent_in_home = 0
-    # Syllabus/demo mode: ghosts and Pac-Man both advance one pixel per frame.
-    # This removes the original game's slow-zone and frightened/eaten speed
-    # modifiers so the adversarial search models a fair equal-speed game.
-    MATCH_PACMAN_SPEED = True
+    # Preserve the original game's speed rules: slow zones, frightened ghosts,
+    # and returning eaten ghosts use their normal movement modifiers.
+    MATCH_PACMAN_SPEED = False
     direction2 = {0: (1, 0, 0), 1: (0, 1, 1), 2: (-1, 0, 2), 3: (0, -1, 3)}
     PEACEFULL_STATES = (GhostStateEnum.EATEN, GhostStateEnum.HIDDEN, GhostStateEnum.INDOOR)
 

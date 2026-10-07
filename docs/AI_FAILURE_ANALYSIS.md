@@ -45,19 +45,18 @@ This is a stronger academic choice than presenting the game as only a
 game-specific heuristic. The state, actions, utility function, MAX/MIN turns,
 and pruning metrics can all be explained in viva.
 
-### Equal-speed experiment
+### Normal-speed and frightened-ghost rules
 
-The runtime ghosts now match Pac-Man's speed in the demonstration mode. Each
-ghost performs exactly one movement step per frame, which is the same movement
-step used by Pac-Man. The original slow-zone, frightened-mode, and eaten-ghost
-speed modifiers are disabled so the live environment matches the fair-speed
-assumption.
+The equal-speed experiment was reverted. The runtime now preserves the
+original game behavior: chase/scatter speed, slow maze zones, frightened ghost
+movement, and eaten-ghost return speed.
 
-Equal speed makes the experiment fair and can improve completion probability,
-but it does not mathematically guarantee a win: ghosts still chase, Pac-Man
-still has a finite search horizon, and the maze contains unavoidable tactical
-situations. We therefore report completion results from repeatable runs rather
-than claiming a guarantee without evidence.
+After Pac-Man eats an energizer, vulnerable ghosts are explicit search targets.
+The simulation models Pac-Man moving onto a vulnerable ghost, removes that
+ghost from future threat branches, and awards the standard consecutive score
+sequence: **200, 400, 800, 1600**. This fixes the earlier behavior where the
+heuristic recognized frightened ghosts as valuable but the route planner did
+not deliberately pursue them.
 
 ### Score-aware simulation state
 
@@ -211,7 +210,7 @@ presentation recording. In this mode:
 
 - Alpha-Beta still chooses every Pac-Man movement action;
 - the real level, pellets, score, ghosts, and win scene are rendered;
-- ghost movement speed still matches Pac-Man;
+- original normal ghost-speed rules remain active;
 - ghost damage is disabled only to isolate the navigation and target-coverage
   experiment.
 
