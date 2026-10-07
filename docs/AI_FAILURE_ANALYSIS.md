@@ -32,6 +32,33 @@ An offline depth-3 smoke test visited about 33,410 nodes and took about 2 second
 
 ## What was implemented
 
+### Syllabus alignment
+
+The project uses algorithms from the supplied syllabus image:
+
+- **Unit II — Problem solving:** state-space search, legal-action generation,
+  corridor BFS distances, and heuristic evaluation;
+- **Unit III — Adversarial search and game theory:** Minimax with Pac-Man as
+  MAX, ghosts as MIN, and Alpha-Beta pruning.
+
+This is a stronger academic choice than presenting the game as only a
+game-specific heuristic. The state, actions, utility function, MAX/MIN turns,
+and pruning metrics can all be explained in viva.
+
+### Equal-speed experiment
+
+The runtime ghosts now match Pac-Man's speed in the demonstration mode. Each
+ghost performs exactly one movement step per frame, which is the same movement
+step used by Pac-Man. The original slow-zone, frightened-mode, and eaten-ghost
+speed modifiers are disabled so the live environment matches the fair-speed
+assumption.
+
+Equal speed makes the experiment fair and can improve completion probability,
+but it does not mathematically guarantee a win: ghosts still chase, Pac-Man
+still has a finite search horizon, and the maze contains unavoidable tactical
+situations. We therefore report completion results from repeatable runs rather
+than claiming a guarantee without evidence.
+
 ### Score-aware simulation state
 
 `SimulationState` now tracks:
@@ -90,7 +117,7 @@ The AI test suite passes **9 tests**, including:
 - threat-prioritized ghost response ordering;
 - rejection of a move with a lethal immediate ghost response.
 
-### Headless real-game sweep
+### Headless real-game sweep before equal-speed mode
 
 A 1,200-frame headless sweep was run against all ten real map files with depth 2. This is a survival-window test, not a full level-completion test.
 
@@ -108,6 +135,28 @@ A 1,200-frame headless sweep was run against all ten real map files with depth 2
 | 10 | Death at frame 291 |
 
 The sweep demonstrates that the agent is still not a guaranteed all-level winner. It does, however, provide a repeatable baseline and prevents us from claiming success based only on a short video clip.
+
+### Equal-speed sweep
+
+After enabling `MATCH_PACMAN_SPEED`, the same 1,200-frame experiment produced:
+
+| Level | Equal-speed result |
+|---|---|
+| 1 | Survived 1200-frame window |
+| 2 | Survived 1200-frame window |
+| 3 | Death at frame 289 |
+| 4 | Death at frame 526 |
+| 5 | Survived 1200-frame window |
+| 6 | Death at frame 403 |
+| 7 | Death at frame 474 |
+| 8 | Survived 1200-frame window |
+| 9 | Death at frame 254 |
+| 10 | Death at frame 253 |
+
+This is evidence that equalizing speed changes the experimental condition and
+improves some runs, but it is not sufficient for an all-level guarantee. The
+remaining failures are planning-horizon and route-coverage failures, not a
+ghost-speed mismatch.
 
 ## How to explain the architecture
 

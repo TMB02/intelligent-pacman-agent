@@ -60,9 +60,24 @@ The live controller uses a risk-aware corridor route, proactive energizer
 seeking, threat-focused ghost responses, a one-step collision shield, and an
 emergency escape policy. Depth 3 is available for offline experiments but is
 not recommended for live play because four-ghost search becomes too slow.
+For the syllabus demonstration, ghosts now match Pac-Man's movement speed:
+each advances one pixel per frame, with slow-zone, frightened, and eaten-speed
+modifiers disabled. This keeps the adversarial comparison fair and makes the
+game completion experiment reproducible.
 The original renderer, collision system, ghost runtime behavior, scoring,
 lives, and win/lose flow are retained; the AI supplies Pac-Man's next desired
 direction at cell centers.
+
+### Syllabus mapping
+
+- **Unit II — State-space search:** immutable maze states, legal actions,
+  corridor BFS route distances, and heuristic evaluation.
+- **Unit III — Adversarial search and game theory:** Pac-Man is the MAX player,
+  ghosts are the MIN player, and Alpha-Beta pruning reduces the search tree.
+- **Game-theory limitation:** the ghosts are simulated as bounded adversarial
+  responses, while the runtime ghosts remain deterministic chase/scatter
+  agents. Equal movement speed makes the comparison fair but does not by
+  itself constitute a mathematical guarantee of winning every level.
 
 Run the AI unit tests with:
 

@@ -20,6 +20,20 @@ The college AI laboratory extension is implemented as a separate `pacman/ai/` la
 - optional path/debug/explanation panel;
 - reproducible performance comparisons based on actual runs.
 
+## Syllabus alignment and fair-speed experiment
+
+The implementation is directly related to the SPPU AI syllabus:
+
+- Unit II: state-space representation, legal actions, heuristic search, and
+  corridor path distance;
+- Unit III: adversarial search, game theory, Minimax, and Alpha-Beta pruning.
+
+For the completion experiment, `pacman/objects/heroes/ghosts/base.py` enables
+`MATCH_PACMAN_SPEED`. Every ghost then performs one movement step per frame,
+matching Pac-Man's one-pixel step. Slow maze zones and frightened/eaten speed
+modifiers are disabled in this mode, so the search model and live environment
+use the same speed assumption.
+
 Minimax and Alpha-Beta search now run on immutable simulation states. The live
 game can opt into the integrated intelligent agent with `PACMAN_AI_MODE=intelligent`.
 The default human mode remains unchanged. AI tests are in `tests/test_ai.py`.
