@@ -104,6 +104,11 @@ class AiTests(unittest.TestCase):
         self.assertTrue(agent._unsafe_one_step(current, "right"))
         self.assertFalse(agent._unsafe_one_step(current, "down"))
 
+    def test_showcase_condition_is_opt_in(self):
+        import os
+
+        self.assertNotEqual(os.getenv("PACMAN_AI_SHOWCASE", "0"), "1")
+
 
 if __name__ == "__main__":
     unittest.main()

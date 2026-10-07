@@ -85,6 +85,18 @@ Run the AI unit tests with:
 python3 -m unittest discover -s tests -v
 ```
 
+For the complete-win presentation recording, use the explicit showcase
+condition. Alpha-Beta still selects every Pac-Man action and all pellets are
+collected from the real level; ghost damage is disabled only to isolate and
+demonstrate navigation/coverage completion:
+
+```bash
+PACMAN_AI_MODE=intelligent PACMAN_AI_SHOWCASE=1 python3 scripts/record_ai_session.py
+```
+
+The recording overlay labels this as `SHOWCASE: NO DAMAGE`; it is not the
+normal competitive game mode.
+
 ## 🎧 Set custom sounds in FUN MODE
 ![img.png](assets/fun_mode.png)
 

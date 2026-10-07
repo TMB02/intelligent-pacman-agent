@@ -203,3 +203,19 @@ To make “win all levels” a valid claim, the next version should add at least
 - a learned policy trained against randomized ghost behavior, with the current Alpha-Beta controller retained as a safety fallback.
 
 The current implementation is therefore a stronger and more explainable research baseline, not a mathematically guaranteed Pac-Man solver.
+
+## Complete-win demonstration
+
+The repository includes a transparent `PACMAN_AI_SHOWCASE=1` mode for the
+presentation recording. In this mode:
+
+- Alpha-Beta still chooses every Pac-Man movement action;
+- the real level, pellets, score, ghosts, and win scene are rendered;
+- ghost movement speed still matches Pac-Man;
+- ghost damage is disabled only to isolate the navigation and target-coverage
+  experiment.
+
+Level 1 clears all **240 targets** and reaches the actual WinScene in the
+verified run. The video overlay says `SHOWCASE: NO DAMAGE`, so this result must
+be presented as a navigation-completion demonstration, not as proof that the
+competitive agent survives every ghost encounter.

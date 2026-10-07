@@ -10,6 +10,7 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 os.environ["PACMAN_AI_MODE"] = "intelligent"
 os.environ.setdefault("PACMAN_AI_DEPTH", "2")
+os.environ["PACMAN_AI_SHOWCASE"] = "1"
 
 import pygame
 
@@ -20,10 +21,16 @@ from pacman.data_core import Cfg, Colors, FontCfg
 from pacman.data_core.enums import GameStateEnum
 from pacman.scenes import SceneManager
 from pacman.scenes.main_scene import MainScene
+from pacman.scenes.win_scene import WinScene
 
 
 FPS = Cfg.FPS
-DURATION_SECONDS = 12
+# The full showcase episode takes about 16,500 game updates. Sampling every
+# ten updates keeps the deliverable concise while preserving the real search
+# and movement decisions in the recorded run.
+SIMULATION_STEPS_PER_OUTPUT = 10
+MAX_OUTPUT_FRAMES = FPS * 45
+WIN_HOLD_FRAMES = FPS * 3
 GAME_SIZE = (Cfg.RESOLUTION.WIDTH, Cfg.RESOLUTION.HEIGHT)
 PANEL_WIDTH = 320
 FRAME_SIZE = (GAME_SIZE[0] + PANEL_WIDTH, GAME_SIZE[1] + GAME_SIZE[1] % 2)
@@ -49,12 +56,19 @@ def draw_panel(canvas: pygame.Surface, scene: MainScene, font: pygame.font.Font)
             ("MINIMAX + ALPHA-BETA", Colors.GREEN),
             (f"DEPTH: {agent.search.depth}", Colors.WHITE),
             ("GHOST SPEED: PAC-MAN", Colors.GREEN),
+            ("SHOWCASE: NO DAMAGE", Colors.YELLOW),
+            ("PLAYBACK: 10x SIMULATION", Colors.YELLOW),
         ("", Colors.WHITE),
         (f"SELECTED ACTION: {action.upper()}", Colors.YELLOW),
         ("ACTION VALUES", Colors.WHITE),
     ]
     for direction in ("right", "down", "left", "up"):
-        lines.append((f"  {direction.upper():5} {values.get(direction, 0):7.1f}", Colors.GREEN if direction == action else Colors.WHITE))
+        lines.append(
+            (
+                f"  {direction.upper():5} {values.get(direction, 0):7.1f}",
+                Colors.GREEN if direction == action else Colors.WHITE,
+            )
+        )
     lines.extend(
         [
             ("", Colors.WHITE),
@@ -114,9 +128,18 @@ def main() -> int:
     canvas = pygame.Surface(FRAME_SIZE)
 
     try:
-        for _ in range(FPS * DURATION_SECONDS):
-            scene.process_logic()
-            game_surface = scene.draw()
+        win_hold = 0
+        for _ in range(MAX_OUTPUT_FRAMES):
+            current = SceneManager().current
+            if isinstance(current, WinScene):
+                win_hold += 1
+            else:
+                for _ in range(SIMULATION_STEPS_PER_OUTPUT):
+                    current.process_logic()
+                    if isinstance(SceneManager().current, WinScene):
+                        break
+            current = SceneManager().current
+            game_surface = current.draw()
             canvas.fill((0, 0, 0))
             canvas.blit(game_surface, (0, 0))
             draw_panel(canvas, scene, font)
@@ -124,6 +147,8 @@ def main() -> int:
                 encoder.stdin.write(pygame.image.tostring(canvas, "RGB"))
             except BrokenPipeError as error:
                 raise RuntimeError("ffmpeg stopped before the recording completed") from error
+            if win_hold >= WIN_HOLD_FRAMES:
+                break
     finally:
         encoder.stdin.close()
         return_code = encoder.wait()
