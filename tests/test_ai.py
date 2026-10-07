@@ -5,7 +5,13 @@ os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 from pacman.ai import MinimaxAgent
-from pacman.ai.state import GhostState, SimulationState, apply_pacman_action, legal_actions
+from pacman.ai.state import (
+    GhostState,
+    SimulationState,
+    apply_pacman_action,
+    ghost_action_combinations,
+    legal_actions,
+)
 
 
 # Four-bit map values are interpreted in the same order as the game:
@@ -78,6 +84,25 @@ class AiTests(unittest.TestCase):
         self.assertEqual(pruned_action, plain_action)
         self.assertLessEqual(pruned.last_metrics.nodes_visited, plain.last_metrics.nodes_visited)
         self.assertGreaterEqual(pruned.last_metrics.nodes_pruned, 0)
+
+    def test_ghost_branch_order_prioritizes_the_threatening_response(self):
+        current = state(
+            pacman=(2, 2),
+            ghosts=(GhostState((2, 0)),),
+            pellets=frozenset({(4, 4)}),
+        )
+        combinations = ghost_action_combinations(current, max_combinations=1)
+        self.assertEqual(combinations, (("down",),))
+
+    def test_safety_shield_rejects_a_move_with_a_lethal_ghost_response(self):
+        current = state(
+            pacman=(1, 1),
+            ghosts=(GhostState((4, 0)),),
+            pellets=frozenset({(2, 1), (1, 2)}),
+        )
+        agent = MinimaxAgent(depth=1)
+        self.assertTrue(agent._unsafe_one_step(current, "right"))
+        self.assertFalse(agent._unsafe_one_step(current, "down"))
 
 
 if __name__ == "__main__":

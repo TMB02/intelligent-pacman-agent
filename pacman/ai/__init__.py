@@ -8,7 +8,7 @@ from .state import SimulationState, extract_state
 class IntelligentAgent:
     """Bridge the live Pygame environment to the pure search implementation."""
 
-    def __init__(self, depth: int = 3) -> None:
+    def __init__(self, depth: int = 2) -> None:
         self.search = AlphaBetaAgent(depth=depth)
 
     def choose_action(self, pacman, ghosts, loader, seeds=None) -> str:

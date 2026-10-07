@@ -78,7 +78,7 @@ Before scoring actions, the controller:
 
 ### Automated tests
 
-The AI test suite passes **7 tests**, including:
+The AI test suite passes **9 tests**, including:
 
 - legal action ordering;
 - pellet collection and score accounting;
@@ -87,6 +87,8 @@ The AI test suite passes **7 tests**, including:
 - distant-vs-near ghost evaluation;
 - energizer risk compensation;
 - Alpha-Beta decision equivalence and pruning behavior.
+- threat-prioritized ghost response ordering;
+- rejection of a move with a lethal immediate ghost response.
 
 ### Headless real-game sweep
 
@@ -138,7 +140,7 @@ Pac-Man desired direction at the next cell center
 1. **“The original problem was not that Minimax was absent; it was that the state and heuristic were incomplete.”**
 2. **“Manhattan distance could recommend a pellet through a wall, and arbitrary branch truncation could hide a dangerous ghost response.”**
 3. **“We added exact maze routes, score-aware rewards, threat-focused ghost branches, energizer strategy, a collision shield, and emergency escape behavior.”**
-4. **“Depth 3 is theoretically stronger but too slow for live play, so the integrated controller defaults to depth 2.”**
+4. **“Depth 3 is theoretically stronger but too slow for live play, so both the reusable agent and integrated controller default to depth 2.”**
 5. **“The tests pass and survival improves, but stochastic ghosts and the short action horizon mean we cannot honestly claim guaranteed completion on all levels yet.”**
 
 ## Next milestone for guaranteed completion
