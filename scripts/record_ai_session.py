@@ -122,6 +122,11 @@ def main() -> int:
     try:
         for _ in range(FPS * DURATION_SECONDS):
             scene.process_logic()
+            # The normal Game loop dispatches queued events before logic. The
+            # recorder has no Game wrapper, so dispatch the same queue here;
+            # this is required for GHOST_FRIGHTENED after an energizer.
+            for event in pygame.event.get():
+                scene.process_event(event)
             game_surface = scene.draw()
             canvas.fill((0, 0, 0))
             canvas.blit(game_surface, (0, 0))
