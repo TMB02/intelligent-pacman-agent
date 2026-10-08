@@ -41,7 +41,6 @@ class MainScene(BaseScene):
         self.__loader = LevelLoader(PathUtl.get_asset(f"maps/{LevelStorage().current}.json"))
 
         self.__ai_mode = os.getenv("PACMAN_AI_MODE", "human").lower()
-        self.__showcase_mode = os.getenv("PACMAN_AI_SHOWCASE", "0") == "1"
         self.__ai_agent = (
             IntelligentAgent(depth=int(os.getenv("PACMAN_AI_DEPTH", "2")))
             if self.__ai_mode in {"intelligent", "alpha-beta", "alphabeta"}
@@ -168,8 +167,6 @@ class MainScene(BaseScene):
             self.__check_ghost_collision()
 
     def __check_ghost_collision(self):
-        if self.__showcase_mode:
-            return
         for ghost in self.__ghosts:
             if not ghost.collision_check(self.pacman.rect):
                 continue

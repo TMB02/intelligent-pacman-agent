@@ -31,9 +31,6 @@ def ghost_state(state: GhostStateEnum):
 class Base(Character, IEventful):
     love_point_in_scatter_mode = (0, 0)
     seed_percent_in_home = 0
-    # Preserve the original game's speed rules: slow zones, frightened ghosts,
-    # and returning eaten ghosts use their normal movement modifiers.
-    MATCH_PACMAN_SPEED = False
     direction2 = {0: (1, 0, 0), 1: (0, 1, 1), 2: (-1, 0, 2), 3: (0, -1, 3)}
     PEACEFULL_STATES = (GhostStateEnum.EATEN, GhostStateEnum.HIDDEN, GhostStateEnum.INDOOR)
 
@@ -72,16 +69,11 @@ class Base(Character, IEventful):
         }
 
     def update(self) -> None:
-        if self.MATCH_PACMAN_SPEED:
-            self.deceleration_multiplier_with_rect = 1
-            self.deceleration_multiplier = 1
-            self.acceleration_multiplier = 1
-        else:
-            self.deceleration_multiplier_with_rect = 1
-            for rect in self.level_loader.slow_ghost_rect:
-                if self.in_rect(rect):
-                    self.deceleration_multiplier_with_rect = 2
-            self.deceleration_multiplier_with_rect *= self.deceleration_multiplier
+        self.deceleration_multiplier_with_rect = 1
+        for rect in self.level_loader.slow_ghost_rect:
+            if self.in_rect(rect):
+                self.deceleration_multiplier_with_rect = 2
+        self.deceleration_multiplier_with_rect *= self.deceleration_multiplier
 
         if self.rotate is None:
             self.rotate = 0

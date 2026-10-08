@@ -47,9 +47,8 @@ and pruning metrics can all be explained in viva.
 
 ### Normal-speed and frightened-ghost rules
 
-The equal-speed experiment was reverted. The runtime now preserves the
-original game behavior: chase/scatter speed, slow maze zones, frightened ghost
-movement, and eaten-ghost return speed.
+The runtime preserves the original game behavior: chase/scatter speed, slow
+maze zones, frightened ghost movement, and eaten-ghost return speed.
 
 After Pac-Man eats an energizer, vulnerable ghosts are explicit search targets.
 The simulation models Pac-Man moving onto a vulnerable ghost, removes that
@@ -116,7 +115,7 @@ The AI test suite passes **9 tests**, including:
 - threat-prioritized ghost response ordering;
 - rejection of a move with a lethal immediate ghost response.
 
-### Headless real-game sweep before equal-speed mode
+### Headless real-game sweep with original rules
 
 A 1,200-frame headless sweep was run against all ten real map files with depth 2. This is a survival-window test, not a full level-completion test.
 
@@ -134,28 +133,6 @@ A 1,200-frame headless sweep was run against all ten real map files with depth 2
 | 10 | Death at frame 291 |
 
 The sweep demonstrates that the agent is still not a guaranteed all-level winner. It does, however, provide a repeatable baseline and prevents us from claiming success based only on a short video clip.
-
-### Equal-speed sweep
-
-After enabling `MATCH_PACMAN_SPEED`, the same 1,200-frame experiment produced:
-
-| Level | Equal-speed result |
-|---|---|
-| 1 | Survived 1200-frame window |
-| 2 | Survived 1200-frame window |
-| 3 | Death at frame 289 |
-| 4 | Death at frame 526 |
-| 5 | Survived 1200-frame window |
-| 6 | Death at frame 403 |
-| 7 | Death at frame 474 |
-| 8 | Survived 1200-frame window |
-| 9 | Death at frame 254 |
-| 10 | Death at frame 253 |
-
-This is evidence that equalizing speed changes the experimental condition and
-improves some runs, but it is not sufficient for an all-level guarantee. The
-remaining failures are planning-horizon and route-coverage failures, not a
-ghost-speed mismatch.
 
 ## How to explain the architecture
 
@@ -203,18 +180,10 @@ To make “win all levels” a valid claim, the next version should add at least
 
 The current implementation is therefore a stronger and more explainable research baseline, not a mathematically guaranteed Pac-Man solver.
 
-## Complete-win demonstration
+## Real-time demonstration
 
-The repository includes a transparent `PACMAN_AI_SHOWCASE=1` mode for the
-presentation recording. In this mode:
-
-- Alpha-Beta still chooses every Pac-Man movement action;
-- the real level, pellets, score, ghosts, and win scene are rendered;
-- original normal ghost-speed rules remain active;
-- ghost damage is disabled only to isolate the navigation and target-coverage
-  experiment.
-
-Level 1 clears all **240 targets** and reaches the actual WinScene in the
-verified run. The video overlay says `SHOWCASE: NO DAMAGE`, so this result must
-be presented as a navigation-completion demonstration, not as proof that the
-competitive agent survives every ghost encounter.
+The showcase collision bypass has been removed. The recording now uses the
+original runtime behavior: normal ghost speed, slow zones, frightened ghosts,
+eaten-ghost return behavior, ghost collisions, lives, scoring, and win/lose
+flow. Alpha-Beta controls only Pac-Man's desired direction; it does not modify
+the ghost runtime.
